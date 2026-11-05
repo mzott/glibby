@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glibby — XYZ to PowerPoint 3D .glb Studio</title>
+  <style>
+    :root {
+      --background: #f6f7f9; --foreground: #111827; --card: #ffffff; --border: #e2e5ea;
+      --primary: #004486; --primary-foreground: #ffffff;
+      --secondary: #eef1f5; --secondary-foreground: #1f2937; --muted-foreground: #6b7280;
+      --danger: #c0392b; --danger-bg: #fdf0ee;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --background: #0f1115; --foreground: #e5e7eb; --card: #181b21; --border: #2b303a;
+        --primary: #4f8fd6; --primary-foreground: #0b1220;
+        --secondary: #232832; --secondary-foreground: #e5e7eb; --muted-foreground: #9ca3af;
+        --danger: #e5786b; --danger-bg: #2a1715;
+      }
+    }
+    :root[data-theme="dark"] {
+      --background: #0f1115; --foreground: #e5e7eb; --card: #181b21; --border: #2b303a;
+      --primary: #4f8fd6; --primary-foreground: #0b1220;
+      --secondary: #232832; --secondary-foreground: #e5e7eb; --muted-foreground: #9ca3af;
+        --danger: #e5786b; --danger-bg: #2a1715;
+    }
+    body { background: var(--background); color: var(--foreground); }
+    /* Inlined utility classes (replaces the Tailwind CDN so the page works offline) */
+    *, ::before, ::after { box-sizing: border-box; border: 0 solid var(--border); }
+    h1, h2, p { margin: 0; font-size: inherit; font-weight: inherit; }
+    button, input, select { font: inherit; color: inherit; margin: 0; }
+    button { background: transparent; }
+    code, .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    canvas { display: block; }
+    .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .hidden { display: none; } .block { display: block; } .flex { display: flex; } .grid { display: grid; }
+    .relative { position: relative; }
+    .flex-1 { flex: 1 1 0%; min-width: 0; } .flex-col { flex-direction: column; } .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; } .justify-between { justify-content: space-between; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); } .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .gap-2 { gap: .5rem; } .gap-2\.5 { gap: .625rem; } .gap-3 { gap: .75rem; } .gap-4 { gap: 1rem; } .gap-5 { gap: 1.25rem; }
+    .space-y-1\.5 > * + * { margin-top: .375rem; } .space-y-3 > * + * { margin-top: .75rem; }
+    .space-y-4 > * + * { margin-top: 1rem; } .space-y-5 > * + * { margin-top: 1.25rem; }
+    .w-full { width: 100%; } .h-full { height: 100%; } .max-w-6xl { max-width: 72rem; } .mx-auto { margin-left: auto; margin-right: auto; }
+    .max-h-36 { max-height: 9rem; } .min-w-\[90px\] { min-width: 90px; }
+    .overflow-hidden { overflow: hidden; } .overflow-y-auto { overflow-y: auto; }
+    .mt-1 { margin-top: .25rem; } .mb-1 { margin-bottom: .25rem; } .mb-1\.5 { margin-bottom: .375rem; }
+    .p-2 { padding: .5rem; } .p-4 { padding: 1rem; } .p-5 { padding: 1.25rem; } .p-6 { padding: 1.5rem; } .pt-1 { padding-top: .25rem; }
+    .px-2 { padding-left: .5rem; padding-right: .5rem; } .px-2\.5 { padding-left: .625rem; padding-right: .625rem; }
+    .px-3 { padding-left: .75rem; padding-right: .75rem; } .px-3\.5 { padding-left: .875rem; padding-right: .875rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-0\.5 { padding-top: .125rem; padding-bottom: .125rem; } .py-1 { padding-top: .25rem; padding-bottom: .25rem; }
+    .py-1\.5 { padding-top: .375rem; padding-bottom: .375rem; } .py-2 { padding-top: .5rem; padding-bottom: .5rem; }
+    .rounded { border-radius: .25rem; } .rounded-lg { border-radius: .5rem; } .rounded-xl { border-radius: .75rem; } .rounded-full { border-radius: 9999px; }
+    .border { border-width: 1px; } .border-2 { border-width: 2px; } .border-t { border-top-width: 1px; } .border-dashed { border-style: dashed; }
+    .border-\[var\(--border\)\] { border-color: var(--border); }
+    .border-\[var\(--primary\)\], .hover\:border-\[var\(--primary\)\]:hover { border-color: var(--primary); }
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / .05); }
+    .bg-white { background-color: #fff; }
+    .bg-\[var\(--background\)\] { background-color: var(--background); } .bg-\[var\(--card\)\] { background-color: var(--card); }
+    .bg-\[var\(--primary\)\] { background-color: var(--primary); } .bg-\[var\(--secondary\)\] { background-color: var(--secondary); }
+    .text-\[var\(--foreground\)\] { color: var(--foreground); } .text-\[var\(--muted-foreground\)\] { color: var(--muted-foreground); }
+    .text-\[var\(--primary-foreground\)\] { color: var(--primary-foreground); } .text-\[var\(--secondary-foreground\)\] { color: var(--secondary-foreground); }
+    .accent-\[var\(--primary\)\] { accent-color: var(--primary); }
+    .text-xs { font-size: .75rem; line-height: 1rem; } .text-sm { font-size: .875rem; line-height: 1.25rem; } .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .font-medium { font-weight: 500; } .font-semibold { font-weight: 600; } .font-bold { font-weight: 700; }
+    .text-center { text-align: center; } .text-right { text-align: right; }
+    .cursor-pointer { cursor: pointer; } .cursor-grab { cursor: grab; } .active\:cursor-grabbing:active { cursor: grabbing; }
+    .transition { transition: all .15s cubic-bezier(.4,0,.2,1); }
+    .hover\:opacity-90:hover { opacity: .9; } .disabled\:opacity-40:disabled { opacity: .4; cursor: not-allowed; }
+    @media (min-width: 1024px) {
+      .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .lg\:col-span-5 { grid-column: span 5 / span 5; } .lg\:col-span-7 { grid-column: span 7 / span 7; }
+    }
+    @media (max-width: 640px) { body.p-6 { padding: 1rem; } }
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    input[type="color"] { -webkit-appearance: none; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; padding: 0; background: transparent; }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: 1px solid rgba(128,128,128,0.4); border-radius: 6px; }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-6">
+  <div class="max-w-6xl mx-auto space-y-5">
+    <!-- Header -->
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">glibby</span>
+          <h1 class="text-xl font-bold text-[var(--foreground)]">XYZ → PowerPoint 3D <code class="text-sm font-mono">.glb</code> Studio</h1>
+        </div>
+        <p class="text-sm text-[var(--muted-foreground)] mt-1">
+          Drop any single-frame or multi-frame <code class="font-mono">.xyz</code> file to preview and export a skeletal-rigged, ChimeraX-styled <code class="font-mono">.glb</code> for Microsoft PowerPoint.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="btnLoadDemo" class="px-3.5 py-2 text-xs font-medium rounded-lg border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:opacity-90 transition cursor-pointer">
+          Load Demo (Fe–NH₂–NH₂ Mode)
+        </button>
+        <button id="btnDownloadGlb" disabled class="px-4 py-2 text-sm font-semibold rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-40 transition cursor-pointer shadow-sm">
+          Download PowerPoint .glb
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <!-- Left Column: Dropzone & Settings (5 cols) -->
+      <div class="lg:col-span-5 space-y-4">
+        <!-- Dropzone -->
+        <div id="dropZone" class="bg-[var(--card)] border-2 border-dashed border-[var(--border)] rounded-xl p-5 text-center transition cursor-pointer hover:border-[var(--primary)]">
+          <input type="file" id="fileInput" accept=".xyz,.txt" class="hidden" />
+          <div class="text-sm font-semibold text-[var(--foreground)]" id="fileLabel">
+            Click to choose an <code class="font-mono">.xyz</code> file or drag & drop here
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)] mt-1" id="fileSubLabel">
+            Supports 1-frame stationary structures & multi-frame reaction/vibrational trajectories
+          </p>
+        </div>
+
+        <!-- Parse errors / atomic-number prompt -->
+        <div id="xyzError" class="hidden rounded-xl p-4 text-sm" style="border:1px solid var(--danger);background:var(--danger-bg);color:var(--foreground)" role="alert">
+          <div id="xyzErrorText" class="font-medium"></div>
+          <div id="xyzConvertPrompt" class="hidden mt-1">
+            <p class="text-xs text-[var(--muted-foreground)] mb-1.5">Did you provide this file with atomic numbers (e.g. <code>26</code> for Fe) instead of element symbols?</p>
+            <button id="btnConvertAtomicNumbers" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] cursor-pointer">Yes, convert atomic numbers to symbols</button>
+          </div>
+        </div>
+
+        <!-- Palette & Element Colors -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-[var(--foreground)]">Color Palette & Element RGBs</h2>
+            <select id="paletteSelect" class="text-xs rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] px-2.5 py-1.5">
+              <option value="zott" selected>Zott Palette (Default)</option>
+              <option value="chimerax">ChimeraX CPK</option>
+            </select>
+          </div>
+          <div id="colorPickersContainer" class="grid grid-cols-2 gap-2.5 pt-1">
+            <!-- Populated dynamically based on elements present -->
+          </div>
+        </div>
+
+        <!-- Animation & Bond Settings -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm space-y-3">
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Trajectory & Bonding Controls</h2>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-[var(--muted-foreground)] mb-1">Loop Mode</label>
+              <select id="loopModeSelect" class="w-full text-xs rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] px-2.5 py-1.5">
+                <option value="auto" selected>Auto-detect (Cycle / Ping-Pong)</option>
+                <option value="cycle">Direct Cycle (0 → N)</option>
+                <option value="ping-pong">Ping-Pong (0 → N → 0)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-[var(--muted-foreground)] mb-1">Speed (FPS): <span id="fpsVal" class="font-semibold text-[var(--foreground)]">12</span></label>
+              <input type="range" id="fpsSlider" min="4" max="30" step="1" value="12" class="w-full accent-[var(--primary)]" />
+            </div>
+          </div>
+
+          <div class="pt-1 border-t border-[var(--border)]">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-medium text-[var(--foreground)]">Dynamic Forming/Cleaving Bonds</span>
+              <span id="dynBondCountBadge" class="text-xs px-2 py-0.5 rounded bg-[var(--secondary)] text-[var(--secondary-foreground)]">0 detected</span>
+            </div>
+            <div id="dynamicBondsList" class="space-y-1.5 text-xs text-[var(--muted-foreground)] max-h-36 overflow-y-auto">
+              <div>Load an <code class="font-mono">.xyz</code> file to inspect bonds.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive 3D Canvas Preview (7 cols) -->
+      <div class="lg:col-span-7 bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm flex flex-col justify-between space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 class="text-sm font-semibold text-[var(--foreground)]" id="previewTitle">Interactive 3D Preview (SEQROW Ball-Stick-Endcap)</h2>
+            <p class="text-xs text-[var(--muted-foreground)]" id="previewSubtitle">Drag on canvas to rotate 3D view • Scroll to zoom</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btnPlayPause" class="px-3 py-1 text-xs font-medium rounded-lg border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] cursor-pointer">
+              Pause
+            </button>
+            <span id="frameIndicator" class="text-xs font-mono text-[var(--muted-foreground)] min-w-[90px] text-right">Frame 1 / 1</span>
+          </div>
+        </div>
+
+        <div class="relative w-full rounded-lg overflow-hidden border border-[var(--border)] bg-white" style="height: 380px;">
+          <canvas id="molCanvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-[var(--muted-foreground)]">Timeline</span>
+          <input type="range" id="frameScrubber" min="0" max="0" value="0" class="flex-1 accent-[var(--primary)]" />
+          <span id="statusBanner" class="text-xs text-[var(--muted-foreground)]">Ready</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const BOND_RADIUS = 0.16;
+const COORD_BOND_RADIUS = 0.125;
+const METALS = new Set(['Fe','Co','Ni','Cu','Zn','Ru','Rh','Pd','Ir','Pt','Mo','W','Mn','Cr','V','Ti','Sc','Au','Ag','Mg','Ca','Al']);
+
+const ELEMENT_SPECS = {
+  'H':  { rcov: 0.31, rsphere: BOND_RADIUS, zott: [248,248,248], chimerax: [248,248,248] },
+  'B':  { rcov: 0.84, rsphere: 0.34, zott: [255,181,181], chimerax: [255,181,181] },
+  'C':  { rcov: 0.76, rsphere: 0.34, zott: [143,143,143], chimerax: [143,143,143] },
+  'N':  { rcov: 0.71, rsphere: 0.34, zott: [0,68,134],    chimerax: [31,71,235] },
+  'O':  { rcov: 0.66, rsphere: 0.34, zott: [240,25,25],   chimerax: [240,25,25] },
+  'F':  { rcov: 0.57, rsphere: 0.32, zott: [144,224,80],  chimerax: [144,224,80] },
+  'Si': { rcov: 1.11, rsphere: 0.42, zott: [240,200,160], chimerax: [240,200,160] },
+  'P':  { rcov: 1.07, rsphere: 0.40, zott: [255,128,0],   chimerax: [255,128,0] },
+  'S':  { rcov: 1.05, rsphere: 0.40, zott: [255,200,50],  chimerax: [255,200,50] },
+  'Cl': { rcov: 1.02, rsphere: 0.38, zott: [31,240,31],   chimerax: [31,240,31] },
+  'Br': { rcov: 1.20, rsphere: 0.42, zott: [166,41,41],   chimerax: [166,41,41] },
+  'I':  { rcov: 1.39, rsphere: 0.45, zott: [148,0,148],   chimerax: [148,0,148] },
+  'Fe': { rcov: 1.32, rsphere: 0.48, zott: [153,119,0],   chimerax: [224,107,36] },
+  'Co': { rcov: 1.26, rsphere: 0.48, zott: [240,144,160], chimerax: [240,144,160] },
+  'Ni': { rcov: 1.24, rsphere: 0.48, zott: [80,208,80],   chimerax: [80,208,80] },
+  'Cu': { rcov: 1.32, rsphere: 0.48, zott: [200,128,51],  chimerax: [200,128,51] },
+  'Zn': { rcov: 1.22, rsphere: 0.48, zott: [125,128,176], chimerax: [125,128,176] },
+  'Ru': { rcov: 1.46, rsphere: 0.50, zott: [36,143,143],  chimerax: [36,143,143] },
+  'Pd': { rcov: 1.39, rsphere: 0.50, zott: [0,105,133],   chimerax: [0,105,133] },
+  'Pt': { rcov: 1.36, rsphere: 0.50, zott: [208,208,224], chimerax: [208,208,224] },
+  'Mo': { rcov: 1.54, rsphere: 0.50, zott: [84,181,181],  chimerax: [84,181,181] },
+  'Mn': { rcov: 1.39, rsphere: 0.48, zott: [156,122,199], chimerax: [156,122,199] },
+  'Cr': { rcov: 1.39, rsphere: 0.48, zott: [138,153,199], chimerax: [138,153,199] },
+  'CoordBond': { rcov: 0.0, rsphere: 0.0, zott: [135,175,235], chimerax: [143,176,245] }
+};
+const DEFAULT_SPEC = { rcov: 1.20, rsphere: 0.38, zott: [204,51,204], chimerax: [204,51,204] };
+
+let currentFileName = "demo_bpyFe_NH2-NH2";
+let rawFrames = [];
+let playFrames = [];
+let detectedBonds = [];
+let disabledBondKeys = new Set();
+let customColors = {}; // key -> [r,g,b]
+let isPlaying = true;
+let currentFrameIdx = 0;
+let lastFrameTime = 0;
+
+// 3D camera state
+let rotX = 0.35;
+let rotY = -0.55;
+let zoomScale = 34.0;
+let isDragging = false;
+let lastMouseX = 0, lastMouseY = 0;
+
+function rgbToHex(rgb) {
+  return "#" + rgb.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+}
+
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+
+function srgbToLinear(c) {
+  const v = Math.max(0, Math.min(255, c)) / 255.0;
+  return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+}
+
+function getSpec(el) {
+  return ELEMENT_SPECS[el] || DEFAULT_SPEC;
+}
+
+function getColorRgb(el) {
+  if (customColors[el]) return customColors[el];
+  const pal = document.getElementById('paletteSelect').value;
+  const spec = getSpec(el);
+  return pal === 'zott' ? [...spec.zott] : [...spec.chimerax];
+}
+
+const PERIODIC = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I','Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U','Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr','Rf','Db','Sg','Bh','Hs','Mt','Ds','Rg','Cn','Nh','Fl','Mc','Lv','Ts','Og'];
+
+class AtomicNumberError extends Error {}
+
+// Normalizes element case ("fe", "FE" -> "Fe"). Atomic numbers are converted only when
+// convertNumbers is true; otherwise they raise AtomicNumberError so the UI can ask first.
+function normalizeElement(raw, lineNo, convertNumbers) {
+  if (/^\d+$/.test(raw)) {
+    const z = parseInt(raw, 10);
+    if (z < 1 || z > PERIODIC.length) throw new Error(`Line ${lineNo}: "${raw}" is not a valid atomic number.`);
+    if (!convertNumbers) throw new AtomicNumberError(`Line ${lineNo}: element is given as atomic number "${raw}".`);
+    return PERIODIC[z - 1];
+  }
+  if (!/^[A-Za-z]{1,3}$/.test(raw)) throw new Error(`Line ${lineNo}: "${raw}" is not an element symbol.`);
+  return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+}
+
+// Strict XYZ parser. Blank comment lines are preserved; blank lines between frames and at
+// the start/end of the file are skipped. Any malformed frame throws instead of being dropped.
+function parseXYZ(text, convertNumbers = false) {
+  const lines = text.split(/\r?\n/);
+  const frames = [];
+  let idx = 0;
+  const skipBlank = () => { while (idx < lines.length && lines[idx].trim() === '') idx++; };
+  skipBlank();
+  while (idx < lines.length) {
+    const countLine = lines[idx].trim();
+    if (!/^\d+$/.test(countLine)) throw new Error(`Line ${idx + 1}: expected an atom count, found "${countLine}".`);
+    const nAtoms = parseInt(countLine, 10);
+    if (nAtoms <= 0) throw new Error(`Line ${idx + 1}: atom count must be positive.`);
+    const fNo = frames.length + 1;
+    if (idx + 1 + nAtoms >= lines.length) {
+      throw new Error(`Frame ${fNo} (line ${idx + 1}) is truncated: expected ${nAtoms} atoms but the file ends after ${Math.max(0, lines.length - idx - 2)}.`);
+    }
+    const comment = lines[idx + 1].trim();
+    const atoms = [];
+    for (let i = 0; i < nAtoms; i++) {
+      const lineNo = idx + 3 + i;
+      const parts = lines[idx + 2 + i].trim().split(/\s+/);
+      if (parts.length < 4 || parts[0] === '') throw new Error(`Frame ${fNo}, line ${lineNo}: expected "Element x y z", found "${lines[idx + 2 + i].trim()}".`);
+      const pos = [];
+      for (let k = 1; k <= 3; k++) {
+        const t = parts[k];
+        const v = /^[+-]?(\d+\.?\d*|\.\d+)([eEdD][+-]?\d+)?$/.test(t) ? parseFloat(t.replace(/[dD]/, 'e')) : NaN;
+        if (!Number.isFinite(v)) throw new Error(`Frame ${fNo}, line ${lineNo}: coordinate "${t}" is not a number.`);
+        pos.push(v);
+      }
+      atoms.push({ el: normalizeElement(parts[0], lineNo, convertNumbers), pos });
+    }
+    if (frames.length) {
+      const ref = frames[0].atoms;
+      if (atoms.length !== ref.length) throw new Error(`Frame ${fNo} has ${atoms.length} atoms but frame 1 has ${ref.length}. All frames must have the same atoms.`);
+      for (let k = 0; k < atoms.length; k++) {
+        if (atoms[k].el !== ref[k].el) throw new Error(`Frame ${fNo}, atom ${k + 1} is ${atoms[k].el} but in frame 1 it is ${ref[k].el}. Atom order must be the same in every frame.`);
+      }
+    }
+    frames.push({ comment, atoms });
+    idx += 2 + nAtoms;
+    skipBlank();
+  }
+  if (!frames.length) throw new Error('No XYZ frames found in this file.');
+  return frames;
+}
+
+function vecSub(a, b) { return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+function vecLen(v) { return Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]); }
+
+function quatFromYAxis(diff) {
+  const d = vecLen(diff);
+  if (d < 1e-8) return [0, 0, 0, 1];
+  const dx = diff[0]/d, dy = diff[1]/d, dz = diff[2]/d;
+  if (dy < -0.999999) return [1, 0, 0, 0];
+  const w = 1.0 + dy;
+  const qx = dz, qy = 0.0, qz = -dx;
+  const norm = Math.sqrt(qx*qx + qy*qy + qz*qz + w*w);
+  return [qx/norm, qy/norm, qz/norm, w/norm];
+}
+
+function analyzeTrajectory(frames) {
+  if (!frames.length) return [];
+  const nAtoms = frames[0].atoms.length;
+  const elements = frames[0].atoms.map(a => a.el);
+
+  // Center all frames around Frame 0 centroid
+  let cx = 0, cy = 0, cz = 0;
+  for (const a of frames[0].atoms) { cx += a.pos[0]; cy += a.pos[1]; cz += a.pos[2]; }
+  cx /= nAtoms; cy /= nAtoms; cz /= nAtoms;
+
+  for (const f of frames) {
+    for (const a of f.atoms) {
+      a.cpos = [a.pos[0] - cx, a.pos[1] - cy, a.pos[2] - cz];
+    }
+  }
+
+  const bonds = [];
+  for (let i = 0; i < nAtoms; i++) {
+    for (let j = i + 1; j < nAtoms; j++) {
+      const elI = elements[i], elJ = elements[j];
+      const isCoord = METALS.has(elI) || METALS.has(elJ);
+      let cutoff = (getSpec(elI).rcov + getSpec(elJ).rcov) * 1.22;
+      if (isCoord) {
+        const other = METALS.has(elI) ? elJ : elI;
+        cutoff = other === 'H' ? 1.75 : (other === 'C' ? 2.15 : 2.40);
+      } else if (elI === 'H' && elJ === 'H') {
+        cutoff = 0.95;
+      } else if (elI === 'H' || elJ === 'H') {
+        cutoff = 1.30;
+      }
+      let dmin = Infinity, dmax = -Infinity;
+      for (const f of frames) {
+        const d = vecLen(vecSub(f.atoms[j].cpos, f.atoms[i].cpos));
+        if (d < dmin) dmin = d;
+        if (d > dmax) dmax = d;
+      }
+      if (dmin <= cutoff) {
+        const isDyn = (dmax > cutoff && dmin <= cutoff) || ((dmax - dmin) > 0.35);
+        bonds.push({
+          key: `${i+1}-${j+1}`,
+          i, j, elI, elJ, dmin, dmax, cutoff, isDyn, isCoord,
+          label: `${elI}${i+1}–${elJ}${j+1}`
+        });
+      }
+    }
+  }
+  return bonds;
+}
+
+function rebuildPlayFrames() {
+  if (!rawFrames.length) { playFrames = []; return; }
+  const mode = document.getElementById('loopModeSelect').value;
+  let eff = mode;
+  if (rawFrames.length === 1) {
+    eff = 'stationary';
+  } else if (mode === 'auto') {
+    const n = rawFrames[0].atoms.length;
+    let sumSq = 0;
+    for (let k = 0; k < n; k++) {
+      const d = vecLen(vecSub(rawFrames[0].atoms[k].cpos, rawFrames[rawFrames.length - 1].atoms[k].cpos));
+      sumSq += d * d;
+    }
+    eff = Math.sqrt(sumSq / n) < 0.05 ? 'cycle' : 'ping-pong';
+  }
+  if (eff === 'ping-pong' && rawFrames.length > 2) {
+    playFrames = [...rawFrames, ...rawFrames.slice(1, -1).reverse()];
+  } else {
+    playFrames = [...rawFrames];
+  }
+  const scrubber = document.getElementById('frameScrubber');
+  scrubber.max = Math.max(0, playFrames.length - 1);
+  if (currentFrameIdx >= playFrames.length) currentFrameIdx = 0;
+}
+
+function renderColorPickers() {
+  const container = document.getElementById('colorPickersContainer');
+  container.innerHTML = '';
+  if (!rawFrames.length) return;
+  const uniqueEls = Array.from(new Set(rawFrames[0].atoms.map(a => a.el))).sort();
+  const hasCoord = detectedBonds.some(b => b.isCoord);
+  if (hasCoord) uniqueEls.push('CoordBond');
+
+  for (const el of uniqueEls) {
+    const rgb = getColorRgb(el);
+    const hex = rgbToHex(rgb);
+    const row = document.createElement('div');
+    row.className = "flex items-center justify-between px-2.5 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)]";
+    const labelText = el === 'CoordBond' ? 'M–L Coord' : `${el} Atom`;
+    row.innerHTML = `
+      <div>
+        <div class="text-xs font-semibold text-[var(--foreground)]">${labelText}</div>
+        <div class="text-xs font-mono text-[var(--muted-foreground)]" id="rgbText_${el}">${rgb.join(', ')}</div>
+      </div>
+      <input type="color" value="${hex}" data-el="${el}" />
+    `;
+    const input = row.querySelector('input');
+    input.addEventListener('input', (e) => {
+      const newRgb = hexToRgb(e.target.value);
+      customColors[el] = newRgb;
+      document.getElementById(`rgbText_${el}`).textContent = newRgb.join(', ');
+    });
+    container.appendChild(row);
+  }
+}
+
+function renderDynamicBondsUI() {
+  const listEl = document.getElementById('dynamicBondsList');
+  const badge = document.getElementById('dynBondCountBadge');
+  const dynBonds = detectedBonds.filter(b => b.isDyn);
+  badge.textContent = `${dynBonds.length} detected`;
+
+  if (!dynBonds.length) {
+    listEl.innerHTML = `<div class="text-xs text-[var(--muted-foreground)]">No forming/breaking dynamic bonds detected (all ${detectedBonds.length} bonds are stationary/covalent).</div>`;
+    return;
+  }
+  listEl.innerHTML = '';
+  for (const b of dynBonds) {
+    const item = document.createElement('label');
+    item.className = "flex items-center justify-between p-2 rounded-lg border border-[var(--border)] bg-[var(--background)] cursor-pointer";
+    const checked = !disabledBondKeys.has(b.key) ? 'checked' : '';
+    item.innerHTML = `
+      <div class="flex items-center gap-2">
+        <input type="checkbox" ${checked} data-key="${b.key}" class="accent-[var(--primary)]" />
+        <span class="font-semibold text-[var(--foreground)]">${b.label}</span>
+      </div>
+      <span class="font-mono text-xs text-[var(--muted-foreground)]">${b.dmin.toFixed(2)} – ${b.dmax.toFixed(2)} Å</span>
+    `;
+    item.querySelector('input').addEventListener('change', (e) => {
+      if (e.target.checked) disabledBondKeys.delete(b.key);
+      else disabledBondKeys.add(b.key);
+    });
+    listEl.appendChild(item);
+  }
+}
+
+let pendingAtomicNumberFile = null;
+
+function showXyzError(msg, offerConvert) {
+  const box = document.getElementById('xyzError');
+  document.getElementById('xyzErrorText').textContent = msg;
+  document.getElementById('xyzConvertPrompt').classList.toggle('hidden', !offerConvert);
+  box.classList.remove('hidden');
+}
+
+function loadXYZContent(name, content, convertNumbers = false) {
+  let frames;
+  try {
+    frames = parseXYZ(content, convertNumbers);
+  } catch (err) {
+    const isAtomicNum = err instanceof AtomicNumberError;
+    pendingAtomicNumberFile = isAtomicNum ? { name, content } : null;
+    showXyzError(`Could not load ${name}. ${err.message}`, isAtomicNum);
+    return;
+  }
+  pendingAtomicNumberFile = null;
+  document.getElementById('xyzError').classList.add('hidden');
+  currentFileName = name.replace(/\.xyz$/i, '');
+  rawFrames = frames;
+  disabledBondKeys.clear();
+  detectedBonds = analyzeTrajectory(rawFrames);
+  rebuildPlayFrames();
+  currentFrameIdx = 0;
+
+  document.getElementById('fileLabel').textContent = `${name} (${rawFrames.length} frame${rawFrames.length>1?'s':''}, ${rawFrames[0].atoms.length} atoms)`;
+  document.getElementById('fileSubLabel').textContent = `${detectedBonds.length} total bonds (${detectedBonds.filter(b=>b.isDyn).length} dynamic)`;
+  document.getElementById('btnDownloadGlb').disabled = false;
+  document.getElementById('statusBanner').textContent = rawFrames.length === 1 ? 'Stationary 3D Mode' : 'Animated Skinned GLB Mode';
+
+  renderColorPickers();
+  renderDynamicBondsUI();
+}
+
+// --- 3D Canvas Preview Renderer ---
+function rotatePoint(p, rx, ry) {
+  // Rotate around Y then X
+  const cosY = Math.cos(ry), sinY = Math.sin(ry);
+  const x1 = p[0] * cosY + p[2] * sinY;
+  const z1 = -p[0] * sinY + p[2] * cosY;
+  const cosX = Math.cos(rx), sinX = Math.sin(rx);
+  const y2 = p[1] * cosX - z1 * sinX;
+  const z2 = p[1] * sinX + z1 * cosX;
+  return [x1, y2, z2];
+}
+
+function drawPreviewFrame() {
+  const canvas = document.getElementById('molCanvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  if (canvas.width !== Math.floor(rect.width * dpr) || canvas.height !== Math.floor(rect.height * dpr)) {
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+  }
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  if (!playFrames.length) {
+    ctx.restore();
+    return;
+  }
+
+  const frame = playFrames[currentFrameIdx] || playFrames[0];
+  const cx = W / 2, cy = H / 2;
+
+  const rPos = frame.atoms.map(a => rotatePoint(a.cpos, rotX, rotY));
+
+  // Build render primitives sorted back-to-front by Z
+  const prims = [];
+
+  // Bonds
+  for (const b of detectedBonds) {
+    if (disabledBondKeys.has(b.key)) continue;
+    const pI = frame.atoms[b.i].cpos;
+    const pJ = frame.atoms[b.j].cpos;
+    const dist = vecLen(vecSub(pJ, pI));
+
+    let thickness = 1.0;
+    if (b.isDyn) {
+      const fullDist = Math.min(b.cutoff * 0.94, b.dmin * 1.16);
+      const breakDist = Math.max(b.cutoff * 1.25, fullDist + 0.55);
+      if (dist <= fullDist) thickness = 1.0;
+      else if (dist >= breakDist) continue;
+      else thickness = 1.0 - (dist - fullDist) / (breakDist - fullDist);
+    }
+
+    const rpI = rPos[b.i], rpJ = rPos[b.j];
+    const mid = [(rpI[0]+rpJ[0])*0.5, (rpI[1]+rpJ[1])*0.5, (rpI[2]+rpJ[2])*0.5];
+
+    if (b.isCoord) {
+      prims.push({
+        type: 'stick',
+        z: mid[2],
+        p1: rpI, p2: rpJ,
+        radius: COORD_BOND_RADIUS * thickness,
+        rgb: getColorRgb('CoordBond')
+      });
+    } else {
+      prims.push({
+        type: 'stick',
+        z: (rpI[2] + mid[2]) * 0.5,
+        p1: rpI, p2: mid,
+        radius: BOND_RADIUS * thickness,
+        rgb: getColorRgb(b.elI)
+      });
+      prims.push({
+        type: 'stick',
+        z: (rpJ[2] + mid[2]) * 0.5,
+        p1: mid, p2: rpJ,
+        radius: BOND_RADIUS * thickness,
+        rgb: getColorRgb(b.elJ)
+      });
+    }
+  }
+
+  // Atoms
+  for (let i = 0; i < frame.atoms.length; i++) {
+    const el = frame.atoms[i].el;
+    const spec = getSpec(el);
+    prims.push({
+      type: 'ball',
+      z: rPos[i][2],
+      p: rPos[i],
+      radius: spec.rsphere,
+      rgb: getColorRgb(el),
+      isH: el === 'H'
+    });
+  }
+
+  prims.sort((a, b) => a.z - b.z);
+
+  for (const item of prims) {
+    if (item.type === 'stick') {
+      const x1 = cx + item.p1[0] * zoomScale;
+      const y1 = cy - item.p1[1] * zoomScale;
+      const x2 = cx + item.p2[0] * zoomScale;
+      const y2 = cy - item.p2[1] * zoomScale;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.lineWidth = Math.max(1.5, item.radius * 2 * zoomScale);
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = `rgb(${item.rgb[0]},${item.rgb[1]},${item.rgb[2]})`;
+      ctx.stroke();
+    } else if (item.type === 'ball') {
+      const x = cx + item.p[0] * zoomScale;
+      const y = cy - item.p[1] * zoomScale;
+      const r = Math.max(2, item.radius * zoomScale);
+      const [cr, cg, cb] = item.rgb;
+      if (item.isH) {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
+        ctx.fill();
+      } else {
+        const grad = ctx.createRadialGradient(x - r*0.3, y - r*0.3, r*0.1, x, y, r);
+        grad.addColorStop(0, `rgb(${Math.min(255, cr+65)},${Math.min(255, cg+65)},${Math.min(255, cb+65)})`);
+        grad.addColorStop(0.7, `rgb(${cr},${cg},${cb})`);
+        grad.addColorStop(1, `rgb(${Math.max(0, cr-45)},${Math.max(0, cg-45)},${Math.max(0, cb-45)})`);
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+    }
+  }
+
+  ctx.restore();
+}
+
+function animateLoop(ts) {
+  const fps = parseInt(document.getElementById('fpsSlider').value, 10) || 12;
+  if (isPlaying && playFrames.length > 1) {
+    if (ts - lastFrameTime >= 1000 / fps) {
+      currentFrameIdx = (currentFrameIdx + 1) % playFrames.length;
+      document.getElementById('frameScrubber').value = currentFrameIdx;
+      document.getElementById('frameIndicator').textContent = `Frame ${currentFrameIdx + 1} / ${playFrames.length}`;
+      lastFrameTime = ts;
+    }
+  } else if (playFrames.length <= 1) {
+    document.getElementById('frameIndicator').textContent = `Frame 1 / 1`;
+  }
+  drawPreviewFrame();
+  requestAnimationFrame(animateLoop);
+}
+
+// --- Binary Skinned GLB Builder in Pure JS ---
+function generateUVSphere(radius, rings=16, sectors=24) {
+  const pos = [], norm = [], ind = [];
+  for (let r = 0; r <= rings; r++) {
+    const theta = r * Math.PI / rings;
+    const sinT = Math.sin(theta), cosT = Math.cos(theta);
+    for (let s = 0; s <= sectors; s++) {
+      const phi = s * 2 * Math.PI / sectors;
+      const nx = sinT * Math.cos(phi), ny = cosT, nz = sinT * Math.sin(phi);
+      norm.push([nx, ny, nz]);
+      pos.push([nx * radius, ny * radius, nz * radius]);
+    }
+  }
+  for (let r = 0; r < rings; r++) {
+    for (let s = 0; s < sectors; s++) {
+      const first = r * (sectors + 1) + s;
+      const second = first + sectors + 1;
+      ind.push(first, first + 1, second);
+      ind.push(second, first + 1, second + 1);
+    }
+  }
+  return { pos, norm, ind };
+}
+
+function generateCylinder(radius, yMin=0.0, yMax=1.0, sectors=20) {
+  const pos = [], norm = [], ind = [];
+  for (const y of [yMin, yMax]) {
+    for (let s = 0; s <= sectors; s++) {
+      const phi = s * 2 * Math.PI / sectors;
+      const nx = Math.cos(phi), nz = Math.sin(phi);
+      norm.push([nx, 0.0, nz]);
+      pos.push([nx * radius, y, nz * radius]);
+    }
+  }
+  for (let s = 0; s < sectors; s++) {
+    const first = s, second = s + (sectors + 1);
+    ind.push(first, second, first + 1);
+    ind.push(second, second + 1, first + 1);
+  }
+  return { pos, norm, ind };
+}
+
+const MAX_BONES_PER_SKIN = 200; // PowerPoint fails above ~255 bones per skinned mesh (235 ok, 259 fails)
+
+function quatRotate(q, v) {
+  const [x, y, z, w] = q;
+  const tx = 2 * (y * v[2] - z * v[1]), ty = 2 * (z * v[0] - x * v[2]), tz = 2 * (x * v[1] - y * v[0]);
+  return [v[0] + w * tx + (y * tz - z * ty), v[1] + w * ty + (z * tx - x * tz), v[2] + w * tz + (x * ty - y * tx)];
+}
+function bakePoint(node, p) {
+  const s = node.scale, t = node.translation;
+  const r = quatRotate(node.rotation, [p[0] * s[0], p[1] * s[1], p[2] * s[2]]);
+  return [r[0] + t[0], r[1] + t[1], r[2] + t[2]];
+}
+function bakeNormal(node, n) {
+  const s = node.scale;
+  const r = quatRotate(node.rotation, [0, 1, 2].map(k => n[k] / Math.max(s[k], 1e-9)));
+  const len = Math.hypot(r[0], r[1], r[2]) || 1;
+  return [r[0] / len, r[1] / len, r[2] / len];
+}
+// Triangles whose bone is in [lo, hi), with vertices re-indexed and joints rebased to lo.
+function subsetByJoint(g, lo, hi) {
+  const out = { pos: [], norm: [], joints: [], weights: [], ind: [] };
+  const vmap = new Map();
+  for (let t = 0; t < g.ind.length; t += 3) {
+    const j0 = g.joints[g.ind[t]][0];
+    if (j0 < lo || j0 >= hi) continue;
+    for (let k = 0; k < 3; k++) {
+      const v = g.ind[t + k];
+      let nv = vmap.get(v);
+      if (nv === undefined) {
+        nv = out.pos.length; vmap.set(v, nv);
+        out.pos.push(g.pos[v]); out.norm.push(g.norm[v]);
+        out.joints.push([g.joints[v][0] - lo, 0, 0, 0]); out.weights.push(g.weights[v]);
+      }
+      out.ind.push(nv);
+    }
+  }
+  return out;
+}
+
+function exportPowerPointGLB() {
+  if (!playFrames.length) return;
+  const frames = playFrames;
+  const isStationary = (frames.length === 1);
+  const nFrames = frames.length;
+  const nAtoms = frames[0].atoms.length;
+  const elements = frames[0].atoms.map(a => a.el);
+  const activeBonds = detectedBonds.filter(b => !disabledBondKeys.has(b.key));
+  const nBonds = activeBonds.length;
+  const nJoints = nAtoms + nBonds;
+  const fps = parseFloat(document.getElementById('fpsSlider').value) || 12.0;
+
+  const matKeys = Array.from(new Set(elements)).sort();
+  if (activeBonds.some(b => b.isCoord)) matKeys.push('CoordBond');
+
+  const elemGeom = {};
+  for (const k of matKeys) elemGeom[k] = { pos: [], norm: [], joints: [], weights: [], ind: [] };
+
+  for (let aIdx = 0; aIdx < nAtoms; aIdx++) {
+    const el = elements[aIdx];
+    const rad = getSpec(el).rsphere;
+    const sph = generateUVSphere(rad, 16, 24);
+    const g = elemGeom[el];
+    const baseV = g.pos.length;
+    for (let i = 0; i < sph.pos.length; i++) {
+      g.pos.push(sph.pos[i]);
+      g.norm.push(sph.norm[i]);
+      g.joints.push([aIdx, 0, 0, 0]);
+      g.weights.push([1.0, 0.0, 0.0, 0.0]);
+    }
+    for (const ix of sph.ind) g.ind.push(baseV + ix);
+  }
+
+  const cylBot = generateCylinder(BOND_RADIUS, 0.0, 0.5, 20);
+  const cylTop = generateCylinder(BOND_RADIUS, 0.5, 1.0, 20);
+  const coordCyl = generateCylinder(COORD_BOND_RADIUS, 0.0, 1.0, 20);
+
+  for (let bIdx = 0; bIdx < nBonds; bIdx++) {
+    const b = activeBonds[bIdx];
+    const jointIdx = nAtoms + bIdx;
+    if (b.isCoord) {
+      const gc = elemGeom['CoordBond'];
+      const baseV = gc.pos.length;
+      for (let k = 0; k < coordCyl.pos.length; k++) {
+        gc.pos.push(coordCyl.pos[k]);
+        gc.norm.push(coordCyl.norm[k]);
+        gc.joints.push([jointIdx, 0, 0, 0]);
+        gc.weights.push([1.0, 0.0, 0.0, 0.0]);
+      }
+      for (const ix of coordCyl.ind) gc.ind.push(baseV + ix);
+    } else {
+      const gi = elemGeom[b.elI];
+      const baseVi = gi.pos.length;
+      for (let k = 0; k < cylBot.pos.length; k++) {
+        gi.pos.push(cylBot.pos[k]);
+        gi.norm.push(cylBot.norm[k]);
+        gi.joints.push([jointIdx, 0, 0, 0]);
+        gi.weights.push([1.0, 0.0, 0.0, 0.0]);
+      }
+      for (const ix of cylBot.ind) gi.ind.push(baseVi + ix);
+
+      const gj = elemGeom[b.elJ];
+      const baseVj = gj.pos.length;
+      for (let k = 0; k < cylTop.pos.length; k++) {
+        gj.pos.push(cylTop.pos[k]);
+        gj.norm.push(cylTop.norm[k]);
+        gj.joints.push([jointIdx, 0, 0, 0]);
+        gj.weights.push([1.0, 0.0, 0.0, 0.0]);
+      }
+      for (const ix of cylTop.ind) gj.ind.push(baseVj + ix);
+    }
+  }
+
+  // Binary buffer chunks
+  const chunks = [];
+  let byteLength = 0;
+  const bufferViews = [];
+  const accessors = [];
+
+  function pushAligned(uint8) {
+    chunks.push(uint8);
+    const offset = byteLength;
+    const len = uint8.byteLength;
+    byteLength += len;
+    const pad = (4 - (byteLength % 4)) % 4;
+    if (pad > 0) {
+      chunks.push(new Uint8Array(pad));
+      byteLength += pad;
+    }
+    return { offset, len };
+  }
+
+  function addAccessor(uint8, compType, count, type, target=null, minVal=null, maxVal=null) {
+    const { offset, len } = pushAligned(uint8);
+    const bv = { buffer: 0, byteOffset: offset, byteLength: len };
+    if (target !== null) bv.target = target;
+    const bvIdx = bufferViews.length;
+    bufferViews.push(bv);
+    const acc = { bufferView: bvIdx, byteOffset: 0, componentType: compType, count, type };
+    if (minVal !== null) acc.min = minVal;
+    if (maxVal !== null) acc.max = maxVal;
+    const accIdx = accessors.length;
+    accessors.push(acc);
+    return accIdx;
+  }
+
+  function packVec3(list) {
+    const f32 = new Float32Array(list.length * 3);
+    const minV = [Infinity, Infinity, Infinity], maxV = [-Infinity, -Infinity, -Infinity];
+    for (let i = 0; i < list.length; i++) {
+      const [x, y, z] = list[i];
+      f32[i*3] = x; f32[i*3+1] = y; f32[i*3+2] = z;
+      if (x < minV[0]) minV[0] = x; if (y < minV[1]) minV[1] = y; if (z < minV[2]) minV[2] = z;
+      if (x > maxV[0]) maxV[0] = x; if (y > maxV[1]) maxV[1] = y; if (z > maxV[2]) maxV[2] = z;
+    }
+    return { bytes: new Uint8Array(f32.buffer), minV, maxV };
+  }
+
+  function packVec4Float(list) {
+    const f32 = new Float32Array(list.length * 4);
+    for (let i = 0; i < list.length; i++) {
+      f32[i*4] = list[i][0]; f32[i*4+1] = list[i][1]; f32[i*4+2] = list[i][2]; f32[i*4+3] = list[i][3];
+    }
+    return new Uint8Array(f32.buffer);
+  }
+
+  function packVec4Ushort(list) {
+    const u16 = new Uint16Array(list.length * 4);
+    for (let i = 0; i < list.length; i++) {
+      u16[i*4] = list[i][0]; u16[i*4+1] = list[i][1]; u16[i*4+2] = list[i][2]; u16[i*4+3] = list[i][3];
+    }
+    return new Uint8Array(u16.buffer);
+  }
+
+  // Large materials are split into chunks of <= 65,535 vertices so every index stays
+  // 16-bit (widest compatibility).
+  const MAX_VERTS_PER_PRIMITIVE = 65535;
+  function splitGeometry(g) {
+    const n = g.pos.length;
+    if (n <= MAX_VERTS_PER_PRIMITIVE) return [g];
+    // Spheres/cylinders are contiguous vertex blocks; a chunk starts at the lowest
+    // vertex used by any remaining triangle, so no triangle is ever split.
+    const nTri = g.ind.length / 3;
+    const suffixMin = new Int32Array(nTri);
+    let m = n;
+    for (let t = nTri - 1; t >= 0; t--) {
+      m = Math.min(m, g.ind[3*t], g.ind[3*t+1], g.ind[3*t+2]);
+      suffixMin[t] = m;
+    }
+    const chunks = [];
+    let startTri = 0, v0 = suffixMin[0];
+    const emit = (tEnd) => {
+      let v1 = 0;
+      for (let k = 3*startTri; k < 3*tEnd; k++) v1 = Math.max(v1, g.ind[k] + 1);
+      chunks.push({
+        pos: g.pos.slice(v0, v1), norm: g.norm.slice(v0, v1),
+        joints: g.joints.slice(v0, v1), weights: g.weights.slice(v0, v1),
+        ind: g.ind.slice(3*startTri, 3*tEnd).map(i => i - v0)
+      });
+    };
+    for (let t = 0; t < nTri; t++) {
+      const hi = Math.max(g.ind[3*t], g.ind[3*t+1], g.ind[3*t+2]);
+      if (hi - v0 >= MAX_VERTS_PER_PRIMITIVE) { emit(t); startTri = t; v0 = suffixMin[t]; }
+    }
+    emit(nTri);
+    return chunks;
+  }
+
+  const materials = [];
+  const matGeoms = [];
+
+  for (const k of matKeys) {
+    const gAll = elemGeom[k];
+    if (!gAll.pos.length) continue;
+    const rgb = getColorRgb(k);
+    const rgba = [srgbToLinear(rgb[0]), srgbToLinear(rgb[1]), srgbToLinear(rgb[2]), 1.0];
+    const matIdx = materials.length;
+    materials.push({
+      name: `Mat_${k}`,
+      alphaMode: "OPAQUE",
+      doubleSided: true,
+      pbrMetallicRoughness: {
+        baseColorFactor: rgba,
+        metallicFactor: 0.05,
+        roughnessFactor: 0.40
+      }
+    });
+
+    matGeoms.push({ matIdx, g: gAll });
+  }
+
+  function addPrimitives(prims, gIn, matIdx, skinned) {
+    for (const g of splitGeometry(gIn)) {
+      const pData = packVec3(g.pos);
+      const attributes = {
+        POSITION: addAccessor(pData.bytes, 5126, g.pos.length, "VEC3", 34962, pData.minV, pData.maxV),
+        NORMAL: addAccessor(packVec3(g.norm).bytes, 5126, g.norm.length, "VEC3", 34962)
+      };
+      if (skinned) {
+        attributes.JOINTS_0 = addAccessor(packVec4Ushort(g.joints), 5123, g.joints.length, "VEC4", 34962);
+        attributes.WEIGHTS_0 = addAccessor(packVec4Float(g.weights), 5126, g.weights.length, "VEC4", 34962);
+      }
+      const indices = addAccessor(new Uint8Array(new Uint16Array(g.ind).buffer), 5123, g.ind.length, "SCALAR", 34963);
+      prims.push({ attributes, indices, material: matIdx });
+    }
+  }
+
+  const jointNodeIndices = Array.from({length: nJoints}, (_, i) => 3 + i);
+  const nodes = [
+    { name: "RootNode", children: [1, 2] },
+    { name: "MoleculeMesh_1" },
+    { name: "Armature", children: jointNodeIndices }
+  ];
+
+  const samplers = [];
+  const channels = [];
+  let timeAcc = null;
+
+  if (!isStationary) {
+    const timesF32 = new Float32Array(nFrames);
+    for (let f = 0; f < nFrames; f++) timesF32[f] = f / fps;
+    timeAcc = addAccessor(new Uint8Array(timesF32.buffer), 5126, nFrames, "SCALAR", null, [timesF32[0]], [timesF32[nFrames-1]]);
+  }
+
+  for (let aIdx = 0; aIdx < nAtoms; aIdx++) {
+    const el = elements[aIdx];
+    const nodeIdx = nodes.length;
+    const transList = frames.map(f => f.atoms[aIdx].cpos);
+    nodes.push({
+      name: `Bone_Atom_${aIdx+1}_${el}`,
+      translation: [...transList[0]],
+      rotation: [0, 0, 0, 1],
+      scale: [1, 1, 1]
+    });
+    if (!isStationary) {
+      const tPack = packVec3(transList);
+      const tAcc = addAccessor(tPack.bytes, 5126, nFrames, "VEC3");
+      const sIdx = samplers.length;
+      samplers.push({ input: timeAcc, interpolation: "LINEAR", output: tAcc });
+      channels.push({ sampler: sIdx, target: { node: nodeIdx, path: "translation" } });
+    }
+  }
+
+  for (let bIdx = 0; bIdx < nBonds; bIdx++) {
+    const b = activeBonds[bIdx];
+    const nodeIdx = nodes.length;
+    const transList = [], rotList = [], scaleList = [];
+
+    for (let f = 0; f < nFrames; f++) {
+      const pi = frames[f].atoms[b.i].cpos;
+      const pj = frames[f].atoms[b.j].cpos;
+      const diff = vecSub(pj, pi);
+      const dist = vecLen(diff);
+      const quat = quatFromYAxis(diff);
+
+      let thickness = 1.0;
+      if (b.isDyn) {
+        const fullDist = Math.min(b.cutoff * 0.94, b.dmin * 1.16);
+        const breakDist = Math.max(b.cutoff * 1.25, fullDist + 0.55);
+        if (dist <= fullDist) thickness = 1.0;
+        else if (dist >= breakDist) thickness = 0.001;
+        else thickness = Math.max(0.001, 1.0 - (dist - fullDist) / (breakDist - fullDist));
+      }
+      transList.push(pi);
+      rotList.push(quat);
+      scaleList.push([thickness, dist, thickness]);
+    }
+
+    nodes.push({
+      name: `Bone_Bond_${b.i+1}_${b.j+1}`,
+      translation: [...transList[0]],
+      rotation: [...rotList[0]],
+      scale: [...scaleList[0]]
+    });
+
+    if (!isStationary) {
+      const tAcc = addAccessor(packVec3(transList).bytes, 5126, nFrames, "VEC3");
+      const rAcc = addAccessor(packVec4Float(rotList), 5126, nFrames, "VEC4");
+      const sAcc = addAccessor(packVec3(scaleList).bytes, 5126, nFrames, "VEC3");
+
+      const st = samplers.length; samplers.push({ input: timeAcc, interpolation: "LINEAR", output: tAcc });
+      channels.push({ sampler: st, target: { node: nodeIdx, path: "translation" } });
+
+      const sr = samplers.length; samplers.push({ input: timeAcc, interpolation: "LINEAR", output: rAcc });
+      channels.push({ sampler: sr, target: { node: nodeIdx, path: "rotation" } });
+
+      const ss = samplers.length; samplers.push({ input: timeAcc, interpolation: "LINEAR", output: sAcc });
+      channels.push({ sampler: ss, target: { node: nodeIdx, path: "scale" } });
+    }
+  }
+
+  const meshes = [], skins = [];
+  let outNodes = nodes;
+  if (isStationary) {
+    // A single frame needs no bones: bake each bone's transform into the vertices.
+    // This also avoids PowerPoint's bone limit for large static molecules.
+    const boneNodes = nodes.slice(3, 3 + nJoints);
+    const prims = [];
+    for (const { matIdx, g } of matGeoms) {
+      const pos = g.pos.map((p, v) => bakePoint(boneNodes[g.joints[v][0]], p));
+      const norm = g.norm.map((n, v) => bakeNormal(boneNodes[g.joints[v][0]], n));
+      addPrimitives(prims, { ...g, pos, norm }, matIdx, false);
+    }
+    meshes.push({ name: "MoleculeMesh", primitives: prims });
+    outNodes = [{ name: "RootNode", children: [1] }, { name: "MoleculeMesh", mesh: 0 }];
+  } else {
+    // PowerPoint fails to import a skin with more than ~255 bones, so large molecules are
+    // split into several skinned meshes, each driven by at most MAX_BONES_PER_SKIN bones.
+    for (let lo = 0; lo < nJoints; lo += MAX_BONES_PER_SKIN) {
+      const hi = Math.min(lo + MAX_BONES_PER_SKIN, nJoints);
+      const prims = [];
+      for (const { matIdx, g } of matGeoms) {
+        const sub = subsetByJoint(g, lo, hi);
+        if (sub.ind.length) addPrimitives(prims, sub, matIdx, true);
+      }
+      const ibm = new Float32Array((hi - lo) * 16);
+      for (let j = 0; j < hi - lo; j++) { ibm[j*16] = 1; ibm[j*16 + 5] = 1; ibm[j*16 + 10] = 1; ibm[j*16 + 15] = 1; }
+      const part = meshes.length + 1;
+      meshes.push({ name: `MoleculeSkinnedMesh_${part}`, primitives: prims });
+      skins.push({ name: `ArmatureSkin_${part}`, inverseBindMatrices: addAccessor(new Uint8Array(ibm.buffer), 5126, hi - lo, "MAT4"), skeleton: 2, joints: jointNodeIndices.slice(lo, hi) });
+      const meshNode = { name: `MoleculeMesh_${part}`, mesh: meshes.length - 1, skin: skins.length - 1 };
+      if (part === 1) nodes[1] = meshNode;
+      else { nodes[0].children.push(nodes.length); nodes.push(meshNode); }
+    }
+  }
+
+  const gltf = {
+    asset: { version: "2.0", generator: "glibby Web Studio" },
+    scene: 0,
+    scenes: [{ name: "Scene", nodes: [0] }],
+    nodes: outNodes,
+    meshes,
+    materials,
+    buffers: [{ byteLength }],
+    bufferViews,
+    accessors
+  };
+  if (skins.length) gltf.skins = skins;
+  if (!isStationary) {
+    gltf.animations = [{ name: "Reaction_Trajectory", samplers, channels }];
+  }
+
+  const jsonStr = JSON.stringify(gltf);
+  const encoder = new TextEncoder();
+  let jsonBytes = encoder.encode(jsonStr);
+  const jsonPad = (4 - (jsonBytes.byteLength % 4)) % 4;
+  if (jsonPad > 0) {
+    const padded = new Uint8Array(jsonBytes.byteLength + jsonPad);
+    padded.set(jsonBytes);
+    for (let i = 0; i < jsonPad; i++) padded[jsonBytes.byteLength + i] = 0x20;
+    jsonBytes = padded;
+  }
+
+  const totalLen = 12 + 8 + jsonBytes.byteLength + 8 + byteLength;
+  const glb = new Uint8Array(totalLen);
+  const dv = new DataView(glb.buffer);
+
+  // Header
+  dv.setUint32(0, 0x46546C67, true); // 'glTF'
+  dv.setUint32(4, 2, true);
+  dv.setUint32(8, totalLen, true);
+
+  // JSON chunk
+  dv.setUint32(12, jsonBytes.byteLength, true);
+  dv.setUint32(16, 0x4E4F534A, true); // 'JSON'
+  glb.set(jsonBytes, 20);
+
+  // BIN chunk
+  const binStart = 20 + jsonBytes.byteLength;
+  dv.setUint32(binStart, byteLength, true);
+  dv.setUint32(binStart + 4, 0x004E4942, true); // 'BIN\0'
+  let offset = binStart + 8;
+  for (const c of chunks) {
+    glb.set(c, offset);
+    offset += c.byteLength;
+  }
+
+  const blob = new Blob([glb], { type: 'model/gltf-binary' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${currentFileName}.glb`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// --- Event Listeners ---
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[var(--primary)]'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[var(--primary)]'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('border-[var(--primary)]');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => loadXYZContent(file.name, ev.target.result);
+    reader.readAsText(file);
+  }
+});
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => loadXYZContent(file.name, ev.target.result);
+    reader.readAsText(file);
+  }
+});
+
+document.getElementById('paletteSelect').addEventListener('change', () => {
+  customColors = {};
+  renderColorPickers();
+});
+document.getElementById('loopModeSelect').addEventListener('change', rebuildPlayFrames);
+document.getElementById('fpsSlider').addEventListener('input', (e) => {
+  document.getElementById('fpsVal').textContent = e.target.value;
+});
+document.getElementById('btnPlayPause').addEventListener('click', (e) => {
+  isPlaying = !isPlaying;
+  e.target.textContent = isPlaying ? 'Pause' : 'Play';
+});
+document.getElementById('frameScrubber').addEventListener('input', (e) => {
+  isPlaying = false;
+  document.getElementById('btnPlayPause').textContent = 'Play';
+  currentFrameIdx = parseInt(e.target.value, 10) || 0;
+  document.getElementById('frameIndicator').textContent = `Frame ${currentFrameIdx + 1} / ${playFrames.length}`;
+});
+document.getElementById('btnDownloadGlb').addEventListener('click', exportPowerPointGLB);
+
+// Canvas mouse rotation & zoom
+const molCanvas = document.getElementById('molCanvas');
+molCanvas.addEventListener('mousedown', (e) => { isDragging = true; lastMouseX = e.clientX; lastMouseY = e.clientY; });
+window.addEventListener('mouseup', () => { isDragging = false; });
+window.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  const dx = e.clientX - lastMouseX, dy = e.clientY - lastMouseY;
+  lastMouseX = e.clientX; lastMouseY = e.clientY;
+  rotY += dx * 0.01;
+  rotX += dy * 0.01;
+});
+molCanvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  zoomScale = Math.max(10, Math.min(90, zoomScale * (e.deltaY < 0 ? 1.08 : 0.92)));
+}, { passive: false });
+
+// Built-in Demo Generator (generates a 20-frame active-site model of Fe(bpyPy2)(NH2)2 N-N coupling)
+function loadBuiltInDemo() {
+  const baseAtoms = [
+    ['C', -2.603, 2.269, -1.005, 0, 0, 0], ['C', -3.081, 0.970, -0.795, 0, 0, 0],
+    ['C', -2.153, -0.046, -0.540, 0, 0, 0], ['N', -0.815, 0.217, -0.589, 0.02, -0.04, -0.07],
+    ['C', -0.347, 1.480, -0.631, 0, 0, 0], ['C', -1.233, 2.541, -0.868, 0, 0, 0],
+    ['C', -3.720, -1.919, 0.182, 0, 0, 0], ['C', -2.439, -1.397, -0.042, 0, 0, 0],
+    ['C', -3.850, -3.161, 0.813, 0, 0, 0], ['C', -2.693, -3.842, 1.215, 0, 0, 0],
+    ['C', -1.443, -3.276, 0.942, 0, 0, 0], ['N', -1.308, -2.089, 0.315, 0.01, 0.05, 0.01],
+    ['C', 1.150, 1.625, -0.303, 0, 0, 0], ['C', 1.522, 3.112, -0.184, 0, 0, 0],
+    ['C', 1.982, 0.917, -1.389, 0, 0, 0], ['C', 1.426, 0.869, 1.027, 0, 0, 0],
+    ['N', 1.114, -0.455, 1.075, -0.04, -0.01, -0.02], ['C', 1.370, -1.178, 2.190, 0, 0, 0],
+    ['C', 1.955, -0.611, 3.322, 0, 0, 0], ['C', 2.273, 0.751, 3.297, 0, 0, 0],
+    ['C', 2.005, 1.495, 2.141, 0, 0, 0], ['C', 2.943, 1.602, -2.147, 0, 0, 0],
+    ['C', 3.716, 0.914, -3.089, 0, 0, 0], ['C', 3.514, -0.460, -3.238, 0, 0, 0],
+    ['C', 2.538, -1.079, -2.458, 0, 0, 0], ['N', 1.767, -0.417, -1.559, -0.03, 0.01, 0.01],
+    ['H', -3.302, 3.084, -1.217, 0, 0, 0], ['H', -4.841, -3.586, 0.996, 0, 0, 0],
+    ['H', -2.745, -4.806, 1.726, 0, 0, 0], ['H', -0.523, -3.790, 1.235, 0, 0, 0],
+    ['H', 0.923, 3.593, 0.604, 0, 0, 0], ['H', 2.586, 3.233, 0.067, 0, 0, 0],
+    ['H', 1.328, 3.636, -1.132, 0, 0, 0], ['H', 1.100, -2.235, 2.152, 0, 0, 0],
+    ['H', 2.148, -1.233, 4.200, 0, 0, 0], ['H', 2.726, 1.236, 4.167, 0, 0, 0],
+    ['H', 2.253, 2.556, 2.112, 0, 0, 0], ['H', 3.095, 2.672, -2.000, 0, 0, 0],
+    ['H', 4.465, 1.446, -3.683, 0, 0, 0], ['H', 4.096, -1.060, -3.943, 0, 0, 0],
+    ['H', 2.381, -2.154, -2.561, 0, 0, 0], ['Fe', 0.318, -1.309, -0.503, -0.045, 0.170, 0.098],
+    ['H', -0.870, 3.567, -0.936, 0, 0, 0],
+    ['N', 1.387, -3.030, -0.354, -0.435, -0.211, -0.900],
+    ['H', 0.967, -3.957, -0.222, 0.055, -0.257, 0.271],
+    ['H', 2.262, -3.155, -0.880, -0.212, -0.334, -0.496],
+    ['N', 0.058, -2.504, -1.842, 0.668, -0.523, 0.558],
+    ['H', 0.596, -2.563, -2.716, 0.568, -0.631, 0.471],
+    ['H', -0.573, -3.315, -1.782, 0.358, -0.326, 0.346],
+    ['H', -4.603, -1.353, -0.125, 0, 0, 0], ['H', -4.153, 0.759, -0.794, 0, 0, 0]
+  ];
+  let xyzLines = [];
+  for (let f = 0; f < 20; f++) {
+    const scale = 0.36 * Math.sin(2 * Math.PI * f / 19);
+    xyzLines.push(`${baseAtoms.length}`);
+    xyzLines.push(`* Demo Frequency -432.3 cm-1 (Frame ${f+1})`);
+    for (const [el, x, y, z, dx, dy, dz] of baseAtoms) {
+      xyzLines.push(`${el} ${(x + scale*dx).toFixed(5)} ${(y + scale*dy).toFixed(5)} ${(z + scale*dz).toFixed(5)}`);
+    }
+  }
+  loadXYZContent("bpyFe_NH2-NH2_demo.xyz", xyzLines.join('\n'));
+}
+
+document.getElementById('btnLoadDemo').addEventListener('click', loadBuiltInDemo);
+document.getElementById('btnConvertAtomicNumbers').addEventListener('click', () => {
+  if (pendingAtomicNumberFile) loadXYZContent(pendingAtomicNumberFile.name, pendingAtomicNumberFile.content, true);
+});
+loadBuiltInDemo();
+requestAnimationFrame(animateLoop);
+</script>
+</body>
+</html>
