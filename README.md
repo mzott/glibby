@@ -10,6 +10,8 @@ In PowerPoint, insert the file with **Insert → 3D Models → This Device…** 
 ## Two ways to use it
 
 ### 1. Offline Web page: `glibby.html`
+**Or use it online: https://mzott.github.io/glibby/**
+
 Open `glibby.html` in any browser. It opens with a built-in demo (an iron complex vibrating along an N–N coupling mode). No install and no internet needed; your files never leave your computer.
 Drop in an `.xyz` file, preview it, adjust colors and bonds, and click **Download PowerPoint .glb**.
 
