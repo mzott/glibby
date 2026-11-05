@@ -4,13 +4,12 @@ Turn `.xyz` molecular structures and trajectories into 3D `.glb` models you can 
 
 - **Single frame** → a static 3D molecule.
 - **Multiple frames** (vibrational modes, reaction paths, IRC scans, MD) → an animated, bone-rigged model that PowerPoint can play.
-- ChimeraX-style ball-and-stick rendering, thin metal–ligand coordination bonds, and bonds that fade in and out as they form and break.
 
 In PowerPoint, insert the file with **Insert → 3D Models → This Device…** (dragging the file onto a slide can skip the animation).
 
 ## Two ways to use it
 
-### 1. Web page: `glibby.html`
+### 1. Offline Web page: `glibby.html`
 Open `glibby.html` in any browser. It opens with a built-in demo (an iron complex vibrating along an N–N coupling mode). No install and no internet needed; your files never leave your computer.
 Drop in an `.xyz` file, preview it, adjust colors and bonds, and click **Download PowerPoint .glb**.
 
@@ -39,7 +38,7 @@ Standard (multi-frame) XYZ: an atom-count line, a comment line (may be empty), t
 | Extra columns after `z` (charges, forces) | Non-numeric, `nan` or `inf` coordinates |
 | `1.2e-3` and Fortran `1.2D-3` numbers | Invalid element symbols |
 | Lowercase/uppercase symbols (`fe`, `FE` → `Fe`) | Blank line inside a frame |
-| Large molecules (see below) | |
+| Huge molecules (see below) | |
 
 **Atomic numbers** (`26` instead of `Fe`) are not converted silently. The web page shows a **Convert atomic numbers to symbols** button; the CLI stops and asks you to re-run with `--atomic-numbers-to-symbols`.
 
@@ -49,6 +48,7 @@ Animated models move each atom and bond with an invisible "bone" (one per atom p
 
 - **Single-frame files** are exported with no bones at all, so any size works.
 - **Animated files** with more than 200 bones are split into several meshes of at most 200 bones each. They look and play the same.
+Have a large molecule that didn't work properly? Submit an issue.
 
 ## Examples and tests
 
@@ -59,7 +59,7 @@ Animated models move each atom and bond with an invisible "bone" (one per atom p
 - `error_*`: refused with a clear error.
 - `stress_*`: large molecules. A 180-carbon (10,0) carbon nanotube, static and with an animated radial breathing mode (about 3 MB static, 6 MB animated). They exceed PowerPoint's bone limit, which glibby works around automatically.
 
-`examples/powerpoint_ready/` has two finished `.glb` files made from the nanotube examples, both confirmed to import and play in PowerPoint. Insert one to see what glibby produces without running anything.
+`examples/powerpoint_ready/` has two finished `.glb` files made from the nanotube examples, both confirmed to import and play in PowerPoint. Insert one to see what glibby produces without running anything. If these don't work on your PowerPoint, let me know via an issue.
 
 Check the CLI against all of them:
 
